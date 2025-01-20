@@ -52,7 +52,6 @@ class Follow(models.Model):
     class Meta:
         unique_together = ('subscription',)
 
-
     def __str__(self):
         return f'{self.subscription}'
 
@@ -80,10 +79,8 @@ class Course(models.Model):
     update_at = models.DateTimeField(auto_now=True, null=True, blank=True)
     language = models.CharField(max_length=24)
 
-
     def __str__(self):
         return f'{self.course_name}'
-
 
     def get_avg_rating(self):
         ratings = self.course_review.all()
@@ -105,9 +102,20 @@ class Lesson(models.Model):
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, related_name='teacher')
     created_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
-
     def __str__(self):
         return f'{self.title}'
+
+    def get_avg_rating(self):
+        ratings = self.lesson_review.all()
+        if ratings.exists():
+            return round(sum(i.rating for i in ratings) / ratings.count(), 1)
+        return 0
+
+    def get_count_rating(self):
+        ratings = self.lesson_review.all()
+        if ratings.exists():
+            return ratings.count()
+        return 0
 
 
 class LessonVideo(models.Model):
@@ -124,7 +132,6 @@ class LessonFile(models.Model):
 
     def __str__(self):
         return f"{self.lesson}-files"
-
 
 
 class Assignment(models.Model):
@@ -174,7 +181,6 @@ class Certificate(models.Model):
         return f'{self.issued_at}'
 
 
-
 class Choice(models.Model):
     question = models.ForeignKey(Questions, related_name='choices', on_delete=models.CASCADE)
     text = models.CharField(max_length=243)
@@ -215,10 +221,10 @@ class CartItem(models.Model):
     quantity = models.PositiveSmallIntegerField(default=1)
 
 
-
 class CourseReview(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='Course_review')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='course_review')
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='lesson_review')
     text = models.TextField()
     stars = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)
     ])

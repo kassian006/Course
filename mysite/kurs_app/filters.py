@@ -15,7 +15,7 @@ class LessonFilter(FilterSet):
         model = Lesson
         fields = {
             'title': ['exact'],
-            'created': ['gt', 'lt']
+            'created_date': ['gt', 'lt']
         }
 
 
@@ -24,7 +24,7 @@ class TeacherFilter(FilterSet):
         model = Teacher
         fields = {
             'position': ['exact'],
-            'work_experience': ['exact'],
+            'work_experience': ['gt', 'lt'],
             'role': ['exact']
       }
 

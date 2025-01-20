@@ -1,5 +1,42 @@
 from .models import *
 from rest_framework import serializers
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ('username', 'email', 'password', 'first_name', 'last_name',
+                  'age', 'phone_number', )
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        user = UserProfile.objects.create_user(**validated_data)
+        return user
+
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        user = authenticate(**data)
+        if user and user.is_active:
+            return user
+        raise serializers.ValidationError("Неверные учетные данные")
+
+    def to_representation(self, instance):
+        refresh = RefreshToken.for_user(instance)
+        return {
+            'user': {
+                'username': instance.username,
+                'email': instance.email,
+            },
+            'access': str(refresh.access_token),
+            'refresh': str(refresh),
+        }
+
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -12,7 +49,6 @@ class UserProfileSimpleSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = ['first_name', 'last_name']
-
 
 
 class StudentListSerializer(serializers.ModelSerializer):
@@ -39,7 +75,6 @@ class TeacherDetailSerializers(serializers.ModelSerializer):
         fields = ['subscription', 'created_date']
 
 
-
 class FollowListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Follow
@@ -58,7 +93,6 @@ class CategoryListSerializer(serializers.ModelSerializer):
         fields = ['category_name']
 
 
-
 class CategoryDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
@@ -71,7 +105,7 @@ class CourseListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        fields = ['course_name', 'category', 'level', 'created_by']
+        fields = ['course_name', 'category', 'level', 'created_by','avg_rating','count_rating']
 
         def get_avg_rating(self, obj):
             return obj.get_avg_rating()
@@ -86,16 +120,22 @@ class CourseDetailSerializer(serializers.ModelSerializer):
         fields = ['course_name', 'description', 'category', 'level', 'price', 'created_by', 'created_at', 'update_at']
 
 
+class CourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = '__all__'
+
+
 class LessonListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
-        fields = ['file', 'lesson']
+        fields = ['file',]
 
 
 class LessonDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
-        fields = ['file', 'lesson']
+        fields = ['file', ]
 
 
 class AssignmentSerializer(serializers.ModelSerializer):
@@ -119,13 +159,19 @@ class LessonVideoDetailSerializers(serializers.ModelSerializer):
 class OptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Option
-        fields = ['option']
+        fields = ['options']
 
 
-class QuestionsSerializer(serializers.ModelSerializer):
+class QuestionsListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Questions
         fields = ['id', 'questions']
+
+
+class QuestionsDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Questions
+        fields = ['questions', 'options']
 
 
 class ExamListSerializer(serializers.ModelSerializer):
@@ -183,9 +229,10 @@ class CartSerializer(serializers.ModelSerializer):
 
 
 class CartItemSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = CartItem
-        fields = ['cart', 'course', 'assignment', 'lesson', 'quantity']
+        fields = ['cart', 'course', 'assignment',  'quantity']
 
 
 class CourseReviewSerializer(serializers.ModelSerializer):

@@ -7,44 +7,45 @@ from .filters import CourseFilter, CategoryFilter, LessonFilter, TeacherFilter, 
 from rest_framework.filters import SearchFilter, OrderingFilter
 from .permissions import CheckTeacher, CheckLessonTeacher, CheckCourseTeacher
 from .paginations import CourseNumberPagination, StudentNumberPagination, TeacherNumberPagination
-# from rest_framework.response import Response
-# from rest_framework_simplejwt.views import TokenObtainPairView
-# from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.response import Response
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
-# class RegisterView(generics.CreateAPIView):
-#     serializer_class = UserProfileSerializer
-#
-#     def create(self, request, *args, **kwargs):
-#         serializer = self.get_serializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-#         user = serializer.save()
-#         return Response(serializer.data, status=status.HTTP_201_CREATED)
-#
-#
-# class CustomLoginView(TokenObtainPairView):
-#     serializer_class = LoginSerializer
-#
-#     def post(self, request, *args, **kwargs):
-#         serializer = self.get_serializer(data=request.data)
-#         try:
-#             serializer.is_valid(raise_exception=True)
-#         except Exception:
-#             return Response({"detail": "Неверные учетные данные"}, status=status.HTTP_401_UNAUTHORIZED)
-#
-#         user = serializer.validated_data
-#         return Response(serializer.data, status=status.HTTP_200_OK)
-#
-#
-# class LogoutView(generics.GenericAPIView):
-#     def post(self, request, *args, **kwargs):
-#         try:
-#             refresh_token = request.data["refresh"]
-#             token = RefreshToken(refresh_token)
-#             token.blacklist()
-#             return Response(status=status.HTTP_205_RESET_CONTENT)
-#         except Exception:
-#             return Response(status=status.HTTP_400_BAD_REQUEST)
+class RegisterView(generics.CreateAPIView):
+    serializer_class = UserSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class CustomLoginView(TokenObtainPairView):
+    serializer_class = LoginSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except Exception:
+            return Response({"detail": "Неверные учетные данные"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        user = serializer.validated_data
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class LogoutView(generics.GenericAPIView):
+    def post(self, request, *args, **kwargs):
+        try:
+            refresh_token = request.data["refresh"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response(status=status.HTTP_205_RESET_CONTENT)
+        except Exception:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class UserProfileViewSet(viewsets.ModelViewSet):
@@ -118,20 +119,20 @@ class CourseDetailAPIView(generics.RetrieveAPIView):
     queryset = Course.objects.all()
     serializer_class = CourseDetailSerializer
 
-    def get(self, request):
-        courses = Course.objects.all()
-        serializer = CourseDetailSerializer(courses, many=True)
-        return Response(serializer.data)
-
-    def post(self, request):
-        courses = Course.objects.all()
-        for i in courses:
-                i.price = 10000
-                i.save()
-
-        serializer = CourseDetailSerializer(courses, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
+    # def get(self, request):
+    #     courses = Course.objects.all()
+    #     serializer = CourseDetailSerializer(courses, many=True)
+    #     return Response(serializer.data)
+    #
+    # def post(self, request):
+    #     courses = Course.objects.all()
+    #     for course in courses:
+    #         course.price = request.data.get("price", course.price)
+    #         course.save()
+    #
+    #     serializer = CourseDetailSerializer(courses, many=True)
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
+    #
     def get_queryset(self):
         return Course.objects.filter(id=self.request.user.id)
 
@@ -145,6 +146,12 @@ class CourseDetailUpdateDeleteAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Course.objects.all()
     serializer_class = CourseDetailSerializer
     permission_classes = [CheckTeacher]
+
+
+class ContactViewSet(viewsets.ModelViewSet):
+    queryset = Contact.objects.all()
+    serializer_class = ContactSerializer
+
 
 
 class LessonListAPIView(generics.ListAPIView):
@@ -299,9 +306,9 @@ class ExamDetailTeacherAPIView(generics.RetrieveUpdateDestroyAPIView):
         return Exam.objects.filter(id=self.request.user.id)
 
 
-class ChoiceViewSet(viewsets.ModelViewSet):
-    queryset = Choice.objects.all()
-    serializer_class = ChoiceSerializer
+# class ChoiceViewSet(viewsets.ModelViewSet):
+#     queryset = Choice.objects.all()
+#     serializer_class = ChoiceSerializer
 
 
 class UserAnswerListAPIView(generics.ListAPIView):
@@ -335,9 +342,6 @@ class UserAnswerDetailTeacherAPIView(generics.RetrieveUpdateDestroyAPIView):
 class CertificateViewSet(viewsets.ModelViewSet):
     queryset = Certificate.objects.all()
     serializer_class = CertificateSerializer
-
-    def get_queryset(self):
-        return Course.objects.filter(id=self.request.user.id)
 
 
 class FavoriteViewSet(viewsets.ModelViewSet):

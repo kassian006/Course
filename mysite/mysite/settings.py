@@ -48,8 +48,8 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'drf_yasg',
     'django_filters',
-    # 'rest_framework_simplejwt',
-    # 'rest_framework_simplejwt.token_blacklist',
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -176,16 +176,16 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 2,
 
-    # 'DEFAULT_AUTHENTICATION_CLASSES': (
-    #     'rest_framework_simplejwt.authentication.JWTAuthentication',
-    # )
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
 }
 
 
-# SIMPLE_JWT = {
-#     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
-#     "REFRESH_TOKEN_LIFETIME": timedelta(days=8),
-#     "ROTATE_REFRESH_TOKENS": True,
-#     "BLACKLIST_AFTER_ROTATION": True,
-#     "AUTH_HEADER_TYPES": ("Bearer",),
-# }
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=8),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}

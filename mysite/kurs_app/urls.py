@@ -6,9 +6,9 @@ from  rest_framework import routers
 router = routers.SimpleRouter()
 router.register(r'users', UserProfileViewSet, basename='users'),
 router.register(r'assignments', AssignmentViewSet, basename='assignments'),
-router.register(r'options', OptionViewSet, basename='options'),
+router.register(r'contact', ContactViewSet, basename='contact'),
 #router.register(r'questions', QuestionsViewSet, basename='questions'),
-router.register(r'choice', ChoiceViewSet, basename='choice'),
+router.register(r'options', OptionViewSet, basename='options'),
 router.register(r'certificates', CertificateViewSet, basename='certificates'),
 router.register(r'favorite', FavoriteViewSet, basename='favorite'),
 router.register(r'favorite_items', FavoriteItemViewSet, basename='favorite_items'),
@@ -19,11 +19,10 @@ router.register(r'teacher_rating', TeacherRatingViewSet, basename='teacher_ratin
 
 
 urlpatterns = [
-   path('', include(router.urls)),
-   # path('register/', RegisterView.as_view(), name='register'),
-   # path('login/', CustomLoginView.as_view(), name='login'),
-   # path('logout/', LogoutView.as_view(), name='logout'),
-
+    path('', include(router.urls)),
+    path('register/', RegisterView.as_view(), name='register'),
+    path('login/', CustomLoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(), name='logout'),
 
     path('', include(router.urls)),
     path('students/', StudentListAPIView.as_view(), name='students_list'),
@@ -39,7 +38,7 @@ urlpatterns = [
     path('category/<int:pk>/', CategoryDetailAPIView.as_view(), name='category_detail'),
 
     path('course/', CourseListAPIView.as_view(), name='course_list'),
-    path('course/<int:pk>/', CourseDetailAPIView.as_view(), name='course_detail'),
+    path('course/<int:pk>/', CourseDetailAPIView.as_view(), name='course-detail'),
     path('course/create/', CourseCreateAPIView.as_view(), name='course_create'),
     path('course/create/<int:pk>/', CourseDetailUpdateDeleteAPIView.as_view(), name='course_create_edit'),
     path('course_list/', CourseListTeacherAPIView.as_view(), name='course_list_teacher'),

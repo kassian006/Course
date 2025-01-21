@@ -5,6 +5,11 @@ from django.contrib.auth.models import AbstractUser
 from phonenumber_field.modelfields import PhoneNumberField
 from multiselectfield import MultiSelectField
 
+STATUS_CHOICES = (
+    ('student', 'Student'),
+    ('teacger', 'Teacher'),
+)
+
 
 class UserProfile(AbstractUser):
     address = models.CharField(max_length=54)
@@ -13,6 +18,8 @@ class UserProfile(AbstractUser):
     data_birth = models.DateField(null=True, blank=True)
     phone_number = PhoneNumberField(null=True, blank=True)
     profile_picture = models.ImageField(upload_to='profile_pictures', null=True, blank=True)
+    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default='student')
+
 
     def __str__(self):
         return f'{self.last_name}, {self.first_name}'
@@ -183,9 +190,9 @@ class Questions(models.Model):
         return f'{self.questions}'
 
 
-class Option(models.Model):
-    question = models.ForeignKey(Questions, on_delete=models.CASCADE, related_name='options')
-    text = models.CharField(max_length=56)
+# class Option(models.Model):
+#     question = models.ForeignKey(Questions, on_delete=models.CASCADE, related_name='options')
+#     text = models.CharField(max_length=56)
 
 
 class Exam(models.Model):
@@ -201,7 +208,7 @@ class Exam(models.Model):
 
 class Certificate(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='student_certificate')
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='course_certificate')
     issued_at = models.DateField(auto_now_add=True)
     certificate = models.FileField(upload_to='certificates/', null=True, blank=True)
 
@@ -209,9 +216,9 @@ class Certificate(models.Model):
         return f'{self.issued_at}'
 
 
-class Choice(models.Model):
+class Option(models.Model):
     question = models.ForeignKey(Questions, related_name='choices', on_delete=models.CASCADE)
-    option = models.ForeignKey(Option, on_delete=models.CASCADE)
+    # option = models.ForeignKey(Option, on_delete=models.CASCADE)
     text = models.CharField(max_length=243)
     is_correct = models.BooleanField(default=False)
 
@@ -220,27 +227,38 @@ class Choice(models.Model):
 
 
 class UserAnswer(models.Model):
-    option = models.ForeignKey(Option, on_delete=models.CASCADE)
+    # option = models.ForeignKey(Option, on_delete=models.CASCADE)
     question = models.ForeignKey(Questions, on_delete=models.CASCADE)
-    choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
+    choice = models.ForeignKey(Option, on_delete=models.CASCADE)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     is_correct = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.student} - {self.question.text}: {self.choice.text} ({'Correct' if self.is_correct else 'Wrong'})"
+        return f"{self.student} - {self.question}: {self.choice} ({'Correct' if self.is_correct else 'Wrong'})"
 
 
 class Favorite(models.Model):
     user = models.OneToOneField(Student, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.user}'
 
 
 class FavoriteItem(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='course')
     favorite = models.ForeignKey(Favorite, on_delete=models.CASCADE, related_name='favorite')
 
+    def __str__(self):
+        return f'{self.course} - {self.course}'
+
+
 
 class Cart(models.Model):
     user = models.ForeignKey(Student, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.user}'
+
 
 
 class CartItem(models.Model):
@@ -250,13 +268,17 @@ class CartItem(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, null=True, blank=True)
     quantity = models.PositiveSmallIntegerField(default=1)
 
+    def __str__(self):
+        return f'{self.cart} - {self.course}'
+
+
 
 class CourseReview(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='course_review')
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='lesson_review')
     text = models.TextField()
-    stars = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)
+    rating = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)
     ])
     created_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 

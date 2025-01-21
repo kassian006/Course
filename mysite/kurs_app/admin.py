@@ -4,13 +4,13 @@ from django.contrib.auth.admin import UserAdmin
 from modeltranslation.admin import TranslationAdmin, TranslationInlineModelAdmin
 
 
-class ChoiceInline(admin.TabularInline):
-    model = Choice
+class OptionInline(admin.TabularInline):
+    model = Option
     extra = 4
 
 
 class QuestionAdmin(admin.ModelAdmin):
-    inlines = [ChoiceInline]
+    inlines = [OptionInline]
 
 
 admin.site.register(Questions, QuestionAdmin)
@@ -74,7 +74,7 @@ admin.site.register(UserProfile)
 admin.site.register(Student)
 admin.site.register(Teacher)
 admin.site.register(Follow)
-admin.site.register(Option)
+#admin.site.register(Option)
 admin.site.register(Assignment)
 admin.site.register(Certificate)
 admin.site.register(UserAnswer)

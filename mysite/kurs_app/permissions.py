@@ -21,5 +21,6 @@ class CheckCourseTeacher(permissions.BasePermission):
 
 class CheckLessonTeacher(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        return obj.course.teacher == request.user
+        return obj.course.status == request.user
+
 

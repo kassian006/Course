@@ -1,12 +1,13 @@
 from django_filters import FilterSet
-from .models import Course, Lesson, Teacher, Category
+from .models import Course, Lesson, Teacher, Category, Exam
 
 
 class CourseFilter(FilterSet):
     class Meta:
         model = Course
         fields = {
-            'category': ['exact']
+            'category': ['exact'],
+            'price': ['gt', 'lt'],
         }
 
 
@@ -14,8 +15,7 @@ class LessonFilter(FilterSet):
     class Meta:
         model = Lesson
         fields = {
-            'title': ['exact'],
-            'created_date': ['gt', 'lt']
+            'created_date': ['gt', 'lt'],
         }
 
 
@@ -25,7 +25,7 @@ class TeacherFilter(FilterSet):
         fields = {
             'position': ['exact'],
             'work_experience': ['gt', 'lt'],
-            'role': ['exact']
+            'role': ['exact'],
       }
 
 
@@ -33,5 +33,12 @@ class CategoryFilter(FilterSet):
     class Meta:
         model = Category
         fields = {
-            'category_name': ['exact']
+            'category_name': ['exact'],
+        }
+
+class ExamFilter(FilterSet):
+    class Meta:
+        model = Exam
+        fields = {
+            'exam_title': ['exact'],
         }

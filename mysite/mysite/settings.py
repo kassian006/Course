@@ -45,12 +45,16 @@ INSTALLED_APPS = [
     'rest_framework',
     "phonenumber_field",
     'multiselectfield',
-    # 'rest_framework_swagger',
+    'rest_framework_swagger',
     'drf_yasg',
     'django_filters',
-    'rest_framework_simplejwt',
-    'rest_framework_simplejwt.token_blacklist',
-
+    # 'rest_framework_simplejwt',
+    # 'rest_framework_simplejwt.token_blacklist',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.github',
 ]
 
 MIDDLEWARE = [
@@ -62,6 +66,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = 'mysite.urls'
@@ -152,28 +157,24 @@ MEDIA_URL = '/media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
-}
-
 AUTH_USER_MODEL = 'kurs_app.UserProfile'
-
 
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 2,
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+
+    # 'DEFAULT_AUTHENTICATION_CLASSES': (
+    #     'rest_framework_simplejwt.authentication.JWTAuthentication',
+    # )
 }
 
 
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=8),
-    "ROTATE_REFRESH_TOKENS": True,
-    "BLACKLIST_AFTER_ROTATION": True,
-    "AUTH_HEADER_TYPES": ("Bearer",),
-}
+# SIMPLE_JWT = {
+#     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+#     "REFRESH_TOKEN_LIFETIME": timedelta(days=8),
+#     "ROTATE_REFRESH_TOKENS": True,
+#     "BLACKLIST_AFTER_ROTATION": True,
+#     "AUTH_HEADER_TYPES": ("Bearer",),
+# }

@@ -5,11 +5,6 @@ from django.contrib.auth.models import AbstractUser
 from phonenumber_field.modelfields import PhoneNumberField
 from multiselectfield import MultiSelectField
 
-STATUS_CHOICES = (
-    ('student', 'Student'),
-    ('teacher', 'Teacher'),
-)
-
 
 class UserProfile(AbstractUser):
     address = models.CharField(max_length=54)
@@ -18,7 +13,6 @@ class UserProfile(AbstractUser):
     data_birth = models.DateField(null=True, blank=True)
     phone_number = PhoneNumberField(null=True, blank=True)
     profile_picture = models.ImageField(upload_to='profile_pictures', null=True, blank=True)
-    status = models.CharField(max_length=32, choices=STATUS_CHOICES, default='student')
 
     def __str__(self):
         return f'{self.last_name}, {self.first_name}'
@@ -33,6 +27,10 @@ class Student(UserProfile):
     def __str__(self):
         return f'{self.first_name}, {self.last_name}'
 
+    class Meta:
+        verbose_name = 'Student'
+        verbose_name_plural = 'Student'
+
 
 class Teacher(UserProfile):
     education = models.CharField(max_length=100)
@@ -43,6 +41,10 @@ class Teacher(UserProfile):
 
     def __str__(self):
         return f'{self.first_name}, {self.last_name}'
+
+    class Meta:
+        verbose_name = 'Teacher'
+        verbose_name_plural = 'Teacher'
 
 
 class Follow(models.Model):
@@ -66,7 +68,7 @@ class Category(models.Model):
 class Course(models.Model):
     course_name = models.CharField(max_length=32)
     description = models.TextField()
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name= 'category_course')
     CHOICES_LEVEL = (
         ('beginner', 'Beginner'),
         ('intermediate', 'Intermediate'),
@@ -76,8 +78,7 @@ class Course(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     created_by = models.ForeignKey(Teacher, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-    update_at = models.DateTimeField(auto_now=True, null=True, blank=True)
-    language = models.CharField(max_length=24)
+    update_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f'{self.course_name}'
@@ -96,14 +97,14 @@ class Course(models.Model):
 
 
 class Lesson(models.Model):
-    title = models.CharField(max_length=32)
+    lesson_name = models.CharField(max_length=32)
     content = models.TextField(null=True, blank=True)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name= 'lesson_course')
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, related_name='teacher')
     created_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     def __str__(self):
-        return f'{self.title}'
+        return f'{self.lesson_name}'
 
     def get_avg_rating(self):
         ratings = self.lesson_review.all()
@@ -116,6 +117,24 @@ class Lesson(models.Model):
         if ratings.exists():
             return ratings.count()
         return 0
+
+
+class Contact(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='contact_course')
+    title = models.CharField(max_length=32)
+    contact_number = PhoneNumberField()
+    social_network = models.URLField(null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.title}, {self.contact_number}'
+
+
+class LessonLanguages(models.Model):
+    language = models.CharField(max_length=32)
+    video = models.FileField(upload_to='Course_languages/')
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='Couse_languages')
+
 
 
 class LessonVideo(models.Model):
@@ -145,30 +164,34 @@ class Assignment(models.Model):
         return f'{self.title}, {self.due_date}'
 
 
-class Option(models.Model):
-    options = models.CharField(max_length=64)
-
-    def __str__(self):
-        return f'{self.options}'
+# class Option(models.Model):
+#     options = models.CharField(max_length=64)
+#
+#     def __str__(self):
+#         return f'{self.options}'
 
 
 class Questions(models.Model):
     questions = models.CharField(max_length=122)
-    options = models.ManyToManyField(Option)
 
     def __str__(self):
         return f'{self.questions}'
 
 
+class Option(models.Model):
+    question = models.ForeignKey(Questions, on_delete=models.CASCADE, related_name='options')
+    text = models.CharField(max_length=56)
+
+
 class Exam(models.Model):
-    title = models.CharField(max_length=32)
+    exam_title = models.CharField(max_length=32)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     questions = models.ManyToManyField(Questions)
     passing_score = models.PositiveSmallIntegerField()
     duration = models.DurationField(default=timedelta(hours=1))
 
     def __str__(self):
-        return f'{self.title}, {self.passing_score}, {self.duration}'
+        return f'{self.exam_title}, {self.passing_score}, {self.duration}'
 
 
 class Certificate(models.Model):
@@ -183,6 +206,7 @@ class Certificate(models.Model):
 
 class Choice(models.Model):
     question = models.ForeignKey(Questions, related_name='choices', on_delete=models.CASCADE)
+    option = models.ForeignKey(Option, on_delete=models.CASCADE)
     text = models.CharField(max_length=243)
     is_correct = models.BooleanField(default=False)
 
@@ -191,6 +215,7 @@ class Choice(models.Model):
 
 
 class UserAnswer(models.Model):
+    option = models.ForeignKey(Option, on_delete=models.CASCADE)
     question = models.ForeignKey(Questions, on_delete=models.CASCADE)
     choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
@@ -201,7 +226,7 @@ class UserAnswer(models.Model):
 
 
 class Favorite(models.Model):
-    owner = models.OneToOneField(Student, on_delete=models.CASCADE)
+    user = models.OneToOneField(Student, on_delete=models.CASCADE)
 
 
 class FavoriteItem(models.Model):
@@ -210,7 +235,7 @@ class FavoriteItem(models.Model):
 
 
 class Cart(models.Model):
-    user = models.OneToOneField(Student, on_delete=models.CASCADE)
+    user = models.ForeignKey(Student, on_delete=models.CASCADE)
 
 
 class CartItem(models.Model):

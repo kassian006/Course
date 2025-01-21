@@ -33,7 +33,13 @@ class Student(UserProfile):
 
 
 class Teacher(UserProfile):
-    education = models.CharField(max_length=100)
+   # education = models.CharField(max_length=100)
+    EDUCATION_CHOICES = (
+        ('высший', 'Высший'),
+        ('средний ', 'Средний'),
+        ('низкий', 'Низкий'),
+    )
+    education = models.CharField(max_length=32, choices=EDUCATION_CHOICES, default='средний')
     position = models.CharField(max_length=100)
     work_experience = models.PositiveSmallIntegerField(null=True, blank=True)
     role = models.CharField(max_length=15, choices=[('teacher', 'teacher')], default='teacher')
@@ -134,7 +140,6 @@ class LessonLanguages(models.Model):
     video = models.FileField(upload_to='Course_languages/')
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='Couse_languages')
-
 
 
 class LessonVideo(models.Model):
@@ -283,7 +288,6 @@ class TeacherRating(models.Model):
             return ratings.count()
         return 0
 
-
     def get_check_good(self):
         ratings = self.course_reviews.all()
         if ratings.exists():
@@ -293,3 +297,17 @@ class TeacherRating(models.Model):
                     num += 1
             return f'{round((num * 100) / ratings.count())}%'
         return f'0%'
+
+
+class Chat(models.Model):
+    person = models.ManyToManyField(UserProfile)
+    create_date = models.DateField(auto_now_add=True)
+
+
+class Message(models.Model):
+    chat = models.ForeignKey(Chat, on_delete=models.CASCADE)
+    author = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    text = models.TextField(null=True, blank=True)
+    image = models.ImageField(upload_to='images', null=True, blank=True)
+    video = models.FileField(upload_to='videos', null=True, blank=True)
+    create_date = models.DateField(auto_now_add=True)

@@ -8,13 +8,9 @@ class ChoiceInline(admin.TabularInline):
     model = Choice
     extra = 4
 
-class OptionInline(admin.TabularInline):
-    model = Option
-    extra = 4
-
 
 class QuestionAdmin(admin.ModelAdmin):
-    inlines = [ChoiceInline, OptionInline]
+    inlines = [ChoiceInline]
 
 
 admin.site.register(Questions, QuestionAdmin)
@@ -78,6 +74,7 @@ admin.site.register(UserProfile)
 admin.site.register(Student)
 admin.site.register(Teacher)
 admin.site.register(Follow)
+admin.site.register(Option)
 admin.site.register(Assignment)
 admin.site.register(Certificate)
 admin.site.register(UserAnswer)

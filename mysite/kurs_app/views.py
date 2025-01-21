@@ -119,23 +119,21 @@ class CourseDetailAPIView(generics.RetrieveAPIView):
     serializer_class = CourseDetailSerializer
 
     def get(self, request):
-        courses = Course.objects.all()  # Получаем все автомобили
+        courses = Course.objects.all()
         serializer = CourseDetailSerializer(courses, many=True)
         return Response(serializer.data)
 
     def post(self, request):
-        courses = Course.objects.all()  # Получаем все автомобили
+        courses = Course.objects.all()
         for i in courses:
                 i.price = 10000
                 i.save()
 
-        # Сериализуем обновленные данные
         serializer = CourseDetailSerializer(courses, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def get_queryset(self):
         return Course.objects.filter(id=self.request.user.id)
-
 
 
 class CourseCreateAPIView(generics.CreateAPIView):

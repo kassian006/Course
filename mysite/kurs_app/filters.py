@@ -25,7 +25,6 @@ class TeacherFilter(FilterSet):
         fields = {
             'position': ['exact'],
             'work_experience': ['gt', 'lt'],
-            'role': ['exact'],
       }
 
 

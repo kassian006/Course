@@ -1,26 +1,29 @@
 from rest_framework import permissions
 
 
-class CheckTeacher(permissions.BasePermission):
+class CheckCreateCourse(permissions.BasePermission):
     def has_permission(self, request, view):
-        if request.user.status == 'teacher':
-            return True
-        return False
-
-class CheckUserReview(permissions.BasePermission):
-    def has_permission(self, request, view):
-        if request.user.status == 'student':
+        if request.user.status in ['teacher', 'admin']:
             return True
         return False
 
 
-class CheckCourseTeacher(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        return obj.teacher == request.user
+class GiveCertificate(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.user.status in ['student', 'admin']:
+            return True
+        return False
 
 
-class CheckLessonTeacher(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        return obj.course.status == request.user
+class CreateCertificate(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.user.status in ['teacher', 'admin']:
+            return True
+        return False
 
 
+class CheckUser(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.user.status == 'admin':
+            return True
+        return False

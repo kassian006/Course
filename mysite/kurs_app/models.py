@@ -6,8 +6,9 @@ from phonenumber_field.modelfields import PhoneNumberField
 from multiselectfield import MultiSelectField
 
 STATUS_CHOICES = (
-    ('student', 'Student'),
-    ('teacger', 'Teacher'),
+    ('admin', 'admin'),
+    ('student', 'student'),
+    ('teacher', 'teacher'),
 )
 
 
@@ -26,7 +27,6 @@ class UserProfile(AbstractUser):
 
 
 class Student(UserProfile):
-    role = models.CharField(max_length=15, choices=[('student', 'student')], default='student')
     headline = models.CharField(max_length=60)
     Facebook = models.URLField(null=True, blank=True)
     Linkedin = models.URLField(null=True, blank=True)
@@ -49,7 +49,6 @@ class Teacher(UserProfile):
     education = models.CharField(max_length=32, choices=EDUCATION_CHOICES, default='средний')
     position = models.CharField(max_length=100)
     work_experience = models.PositiveSmallIntegerField(null=True, blank=True)
-    role = models.CharField(max_length=15, choices=[('teacher', 'teacher')], default='teacher')
 
 
     def __str__(self):
@@ -227,7 +226,6 @@ class Option(models.Model):
 
 
 class UserAnswer(models.Model):
-    # option = models.ForeignKey(Option, on_delete=models.CASCADE)
     question = models.ForeignKey(Questions, on_delete=models.CASCADE)
     choice = models.ForeignKey(Option, on_delete=models.CASCADE)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)

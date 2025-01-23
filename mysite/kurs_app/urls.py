@@ -9,7 +9,7 @@ router.register(r'assignments', AssignmentViewSet, basename='assignments'),
 router.register(r'contact', ContactViewSet, basename='contact'),
 #router.register(r'questions', QuestionsViewSet, basename='questions'),
 router.register(r'options', OptionViewSet, basename='options'),
-router.register(r'certificates', CertificateViewSet, basename='certificates'),
+#router.register(r'certificates', CertificateViewSet, basename='certificates'),
 router.register(r'favorite', FavoriteViewSet, basename='favorite'),
 router.register(r'favorite_items', FavoriteItemViewSet, basename='favorite_items'),
 router.register(r'carts', CartViewSet, basename='carts'),
@@ -20,9 +20,9 @@ router.register(r'teacher_rating', TeacherRatingViewSet, basename='teacher_ratin
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('register/', RegisterView.as_view(), name='register'),
-    path('login/', CustomLoginView.as_view(), name='login'),
-    path('logout/', LogoutView.as_view(), name='logout'),
+    # path('register/', RegisterView.as_view(), name='register'),
+    # path('login/', CustomLoginView.as_view(), name='login'),
+    # path('logout/', LogoutView.as_view(), name='logout'),
 
     path('', include(router.urls)),
     path('students/', StudentListAPIView.as_view(), name='students_list'),
@@ -55,6 +55,10 @@ urlpatterns = [
     path('exam/create/<int:pk>/', ExamDetailUpdateDeleteAPIView.as_view(), name='exam_create_edit'),
     path('exam_list/', ExamListTeacherAPIView.as_view(), name='exam_list_owner'),
     path('exam_list/<int:pk>/', ExamDetailTeacherAPIView.as_view(), name='exam_list_edit'),
+
+    path('certificates/', CertificateListAPIView.as_view(), name='certificates_list'),
+    path('certificates/<int:pk>/', CertificateDetailAPIView.as_view(), name='certificates_detail'),
+    path('certificates/create/', CertificateCreateApiView.as_view(), name='certificates_create'),
 
     path('user_answer/', UserAnswerListAPIView.as_view(), name='user_answer_list'),
     path('user_answer/<int:pk>/', UserAnswerDetailAPIView.as_view(), name='user_answer_detail'),

@@ -38,4 +38,6 @@ urlpatterns = i18n_patterns(
     path('', include('kurs_app.urls')),
     path('docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('accounts/', include('allauth.urls')),
+    path('auth/', include('dj_rest_auth.urls')),
+    path('auth/registration/', include('dj_rest_auth.registration.urls'))
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

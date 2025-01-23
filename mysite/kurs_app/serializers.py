@@ -3,43 +3,54 @@ from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 
-from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import authenticate
-
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserProfile
-        fields = ['username', 'email', 'password', 'first_name', 'last_name',
-                  'age', 'phone_number', 'status']
-        extra_kwargs = {'password': {'write_only': True}}
-
-    def create(self, validated_data):
-        user = UserProfile.objects.create_user(**validated_data)
-        return user
-
-
-class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField()
-    password = serializers.CharField(write_only=True)
-
-    def validate(self, data):
-        user = authenticate(**data)
-        if user and user.is_active:
-            return user
-        raise serializers.ValidationError("Неверные учетные данные")
-
-    def to_representation(self, instance):
-        refresh = RefreshToken.for_user(instance)
-        return {
-            'user': {
-                'username': instance.username,
-                'email': instance.email,
-            },
-            'access': str(refresh.access_token),
-            'refresh': str(refresh),
-        }
-
+# from rest_framework_simplejwt.tokens import RefreshToken
+# from django.contrib.auth import authenticate
+#
+#
+# class UserSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = UserProfile
+#         fields = ['username', 'email', 'password', 'first_name', 'last_name',
+#                   'age', 'phone_number', 'status']
+#         extra_kwargs = {'password': {'write_only': True}}
+#
+#     def create(self, validated_data):
+#         user = UserProfile.objects.create_user(**validated_data)
+#         return user
+#
+#     def to_representation(self, instance):
+#         refresh = RefreshToken.for_user(instance)
+#         return {
+#             'user': {
+#                 'username': instance.username,
+#                 'email': instance.email,
+#             },
+#             'access': str(refresh.access_token),
+#             'refresh': str(refresh),
+#         }
+#
+#
+# class LoginSerializer(serializers.Serializer):
+#     username = serializers.CharField()
+#     password = serializers.CharField(write_only=True)
+#
+#     def validate(self, data):
+#         user = authenticate(**data)
+#         if user and user.is_active:
+#             return user
+#         raise serializers.ValidationError("Неверные учетные данные")
+#
+#     def to_representation(self, instance):
+#         refresh = RefreshToken.for_user(instance)
+#         return {
+#             'user': {
+#                 'username': instance. username,
+#                 'email': instance.email,
+#             },
+#             'access': str(refresh.access_token),
+#             'refresh': str(refresh),
+#         }
+#
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -54,27 +65,37 @@ class UserProfileSimpleSerializer(serializers.ModelSerializer):
 
 
 class StudentListSerializer(serializers.ModelSerializer):
+    student_image = serializers.ImageField(source='user.profile.image', read_only=True)
+
+
     class Meta:
         model = Student
         fields = ['id','bio', 'student_image']
 
 
 class StudentDetailSerializer(serializers.ModelSerializer):
+    student_image = serializers.ImageField(source='user.profile.image', read_only=True)
+
+
     class Meta:
         model = Student
         fields = ['bio', 'student_image']
 
 
 class TeacherListSerializer(serializers.ModelSerializer):
+    teacher_image = serializers.ImageField(source='user.profile.image', read_only=True)
+
     class Meta:
         model = Teacher
         fields = ['id','bio', 'teacher_image']
 
 
 class TeacherDetailSerializers(serializers.ModelSerializer):
+    teacher_image = serializers.ImageField(source='user.profile.image', read_only=True)
+
     class Meta:
         model = UserProfile
-        fields = ['subscription', 'created_date']
+        fields = ['subscription', 'teacher_image', 'created_date']
 
 
 class FollowListSerializer(serializers.ModelSerializer):
@@ -152,13 +173,13 @@ class ContactSerializer(serializers.ModelSerializer):
 class LessonListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
-        fields = ['id','file',]
+        fields = ['id','lesson_name',]
 
 
 class LessonDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
-        fields = ['file', ]
+        fields = ['lesson_name','content', 'course']
 
 
 class AssignmentSerializer(serializers.ModelSerializer):
@@ -219,7 +240,7 @@ class QuestionsListSerializer(serializers.ModelSerializer):
 class QuestionsDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Questions
-        fields = ['questions', 'options']
+        fields = ['questions']
 
 
 class QuestionsListTeacherSerializer(serializers.ModelSerializer):
@@ -249,16 +270,28 @@ class LessonDetailTeacherSerializer(serializers.ModelSerializer):
 class ExamListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Exam
-        fields = ['id','title', 'course', ]
+        fields = ['id','exam_title', 'course', ]
 
 
 class ExamDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Exam
-        fields = ['title', 'course', 'questions', 'passing_score', 'duration']
+        fields = ['exam_title', 'course', 'questions', 'passing_score', 'duration']
 
 
-class CertificateSerializer(serializers.ModelSerializer):
+class CertificateListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Certificate
+        fields = ['id','course', 'issued_at', 'certificate', 'student']
+
+
+class CertificateDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Certificate
+        fields = ['course', 'issued_at', 'certificate', 'student']
+
+
+class CertificateCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Certificate
         fields = ['course', 'issued_at', 'certificate', 'student']
@@ -273,10 +306,11 @@ class OptionSerializer(serializers.ModelSerializer):
 class UserAnswerListSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserAnswer
-        fields = ['id','question', 'choice', 'student', 'is_correct', 'students']
+        fields = ['id','question', 'choice', 'student', 'is_correct']
 
 
 class UserAnswerDetailSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = UserAnswer
         fields = ['question', 'choice', 'student', 'is_correct', 'students']
@@ -309,7 +343,7 @@ class UserAnswerDetailTeacherSerializer(serializers.ModelSerializer):
 class FavoriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Favorite
-        fields = ['owner']
+        fields = ['user']
 
 
 class FavoriteItemSerializer(serializers.ModelSerializer):
@@ -354,6 +388,9 @@ class TeacherRatingSerializer(serializers.ModelSerializer):
 
     def get_count_rating(self, obj):
             return obj.get_total_people()
+
+    def get_check_good(self, obj):
+            return obj.get_check_good()
 
 
 class CourseDetailSerializer(serializers.ModelSerializer):
